@@ -216,31 +216,56 @@ void drawItem(Context context, char *name, struct stat st, Rect rect, int chosen
 }
 
 char *sizeFormat(uint size) {
-    char *result = (char *) malloc(12 * sizeof(char));
+    char *result = (char *) malloc(12 * sizeof(char)), *truer = (char *) malloc(12 * sizeof(char));
     int n = 0;
-    if (size > 1024) {
+    if (size > 1024 * 1024) {
+        size = size / (1024 * 1024);
+        do {
+            result[n++] = (size % 10) + '0';
+            size /= 10;
+        } while (size != 0);
+        int temp = n, i = 0;
+        for (; n >= 0; )
+            truer[i++] = result[--n];
+        n = temp;
+        truer[n++] = ' ';
+        truer[n++] = 'M';
+        truer[n++] = 'b';
+        truer[n] = 0;
+    }
+    else if (size > 1024) {
         size = size / (1024);
         do {
             result[n++] = (size % 10) + '0';
             size /= 10;
         } while (size != 0);
-        result[n++] = 'K';
-        result[n++] = 'b';
-        result[n] = 0;
+        int temp = n, i = 0;
+        for (; n >= 0; )
+            truer[i++] = result[--n];
+        n = temp;
+        truer[n++] = ' ';
+        truer[n++] = 'K';
+        truer[n++] = 'b';
+        truer[n] = 0;
     }
     else {
         do {
             result[n++] = (size % 10) + '0';
             size /= 10;
         } while (size != 0);
-        result[n++] = 'b';
-        result[n++] = 'y';
-        result[n++] = 't';
-        result[n++] = 'e';
-        result[n++] = 's';
-        result[n] = 0;
+        int temp = n, i = 0;
+        for (; n >= 0; )
+            truer[i++] = result[--n];
+        n = temp;
+        truer[n++] = ' ';
+        truer[n++] = 'B';
+        truer[n++] = 'y';
+        truer[n++] = 't';
+        truer[n++] = 'e';
+        truer[n++] = 's';
+        truer[n] = 0;
     }
-    return result;
+    return truer;
 }
 
 char *calcLength(uint size) {
@@ -253,10 +278,8 @@ char *calcLength(uint size) {
         mins /= 10;
     } while (mins != 0);
     result[n++] = ':';
-    do {
-        result[n++] = (secs % 10) + '0';
-        secs /= 10;
-    } while (secs != 0);
+    result[n++] = (secs / 10) + '0';
+    result[n++] = (secs % 10) + '0';
     result[n++] = 0;
     return result;
 }
